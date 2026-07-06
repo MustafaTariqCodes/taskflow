@@ -1,12 +1,14 @@
+import os
 from fastapi import FastAPI
 from pydantic import BaseModel
 import mysql.connector
 from fastapi.middleware.cors import CORSMiddleware
-db=mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="",
-    database="task_management",
+db = mysql.connector.connect(
+    host=os.getenv("MYSQLHOST"),
+    user=os.getenv("MYSQLUSER"),
+    password=os.getenv("MYSQLPASSWORD"),
+    database=os.getenv("MYSQLDATABASE"),
+    port=int(os.getenv("MYSQLPORT")),
     use_pure=True
 )
 app= FastAPI()
