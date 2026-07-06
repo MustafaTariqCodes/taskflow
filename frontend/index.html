@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TaskFlow — Project & Task Management</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+    <!-- ─── Sidebar Overlay (Mobile) ─── -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ═══════════════════════════════════════
+       SIDEBAR
+  ═══════════════════════════════════════ -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <i class="fa-solid fa-bolt"></i>
+            TaskFlow
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <div class="sidebar-section-title">Menu</div>
+
+            <a href="#" class="sidebar-link active" data-page="dashboard">
+                <i class="fa-solid fa-house"></i> Dashboard
+            </a>
+
+            <a href="#" class="sidebar-link" data-page="tasks">
+                <i class="fa-solid fa-list-check"></i> My Tasks
+                <span class="badge">0</span>
+            </a>
+
+            <a href="#" class="sidebar-link" data-page="projects">
+                <i class="fa-solid fa-folder-open"></i> Projects
+            </a>
+
+            <!-- <a href="#" class="sidebar-link" data-page="calendar">
+                <i class="fa-regular fa-calendar"></i> Calendar
+            </a> -->
+
+            <div class="sidebar-section-title">Workspace</div>
+
+            <a href="#" class="sidebar-link">
+                <i class="fa-solid fa-chart-pie"></i> Reports
+            </a>
+
+            <a href="#" class="sidebar-link">
+                <i class="fa-solid fa-gear"></i> Settings
+            </a>
+
+            <div class="sidebar-section-title">Projects</div>
+
+            <!-- Dynamic projects will be inserted here -->
+            <div id="sp" class="sidebar-projects">
+                <!-- JavaScript adds projects here -->
+                <p id="noProject" style="font-size: small;">No projects added</p>
+            </div>
+
+        </nav>
+
+        <div class="sidebar-user">
+            <div class="sidebar-user-avatar">AK</div>
+
+            <div class="sidebar-user-info">
+                <div class="sidebar-user-name">Alex Kim</div>
+                <div class="sidebar-user-role">Product Manager</div>
+            </div>
+
+            <button data-tooltip="Logout">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
+        </div>
+    </aside>
+
+    <!-- ═══════════════════════════════════════
+       MAIN WRAPPER
+  ═══════════════════════════════════════ -->
+    <div class="main-wrapper">
+
+        <!-- ─── Header ─── -->
+        <header class="header">
+            <button class="hamburger" id="hamburgerBtn"><i class="fa-solid fa-bars"></i></button>
+            <div class="header-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Search tasks, projects..." id="globalSearch" />
+            </div>
+            <div class="header-actions">
+                <button class="header-icon-btn" data-tooltip="Notifications">
+                    <i class="fa-regular fa-bell"></i>
+                    <span class="notif-dot"></span>
+                </button>
+                <button class="header-icon-btn" data-tooltip="Messages">
+                    <i class="fa-regular fa-message"></i>
+                </button>
+                <button class="btn btn-primary btn-sm" id="openNewTaskModal">
+                    <i class="fa-solid fa-plus"></i> New Task
+                </button>
+            </div>
+        </header>
+
+        <!-- ─── Content ─── -->
+        <main class="content">
+
+            <!-- ═══════════════════════════════════
+           PAGE: DASHBOARD
+      ═══════════════════════════════════ -->
+            <section id="page-dashboard" class="page active">
+                <div class="page-title-bar">
+                    <div>
+                        <h1>Dashboard</h1>
+                        <p>Welcome back, Alex! Here's your overview.</p>
+                    </div>
+                    <div style="display:flex;gap:10px;">
+                        <!-- <button class="btn btn-outline btn-sm"><i class="fa-solid fa-download"></i> Export</button> -->
+                        <button class="btn btn-primary btn-sm" id="openNewProjectModal"><i class="fa-solid fa-plus"></i>
+                            New Project</button>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon blue"><i class="fa-solid fa-clipboard-list"></i></div>
+                        <div class="stat-info">
+                            <h3 id="totalTasks">0</h3>
+                            <p>Total Tasks</p>
+                            <span class="stat-trend up"><i class="fa-solid fa-arrow-up"></i> 12%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green"><i class="fa-solid fa-circle-check"></i></div>
+                        <div class="stat-info">
+                            <h3 id="completedTasks">0</h3>
+                            <p>Completed</p>
+                            <span class="stat-trend up"><i class="fa-solid fa-arrow-up"></i> 8%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon amber"><i class="fa-solid fa-spinner"></i></div>
+                        <div class="stat-info">
+                            <h3 id="taskProgress">0</h3>
+                            <p>In Progress</p>
+                            <span class="stat-trend down"><i class="fa-solid fa-arrow-down"></i> 3%</span>
+                        </div>
+                    </div>
+                    <!-- <div class="stat-card">
+                        <div class="stat-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        <div class="stat-info">
+                            <h3>3</h3>
+                            <p>Overdue</p>
+                            <span class="stat-trend down"><i class="fa-solid fa-arrow-down"></i> 2%</span>
+                        </div>
+                    </div> -->
+                </div>
+
+                <div class="two-col">
+                    <!-- Board Preview -->
+                    <div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                            <h2 style="font-size:1.05rem;font-weight:700;">Kanban Board</h2>
+                            <!-- <a href="#" class="sidebar-link" data-page="tasks"
+                                style="padding:6px 12px;font-size:.75rem;color:var(--clr-primary);">View All <i
+                                    class="fa-solid fa-arrow-right" style="font-size:.65rem;"></i></a> -->
+                        </div>
+                        <div class="board" style="min-height:auto;">
+                            <!-- To Do -->
+                            <div class="board-column">
+                                <div class="board-column-header">
+                                    <span class="column-indicator todo"></span>
+                                    <h3>To Do</h3>
+                                    <span id="c1" class="count">0</span>
+                                    <button id="dAdd" class="add-task-btn"><i class="fa-solid fa-plus"></i></button>
+                                </div>
+                                <div id="bc1" class="board-cards">
+                                    <!-- <div class="task-card">
+                                        <span class="task-card-label label-design">Design</span>
+                                        <h4>Redesign Landing Page</h4>
+                                        <p>Update hero section and CTA buttons with new brand guidelines.</p>
+                                        <div class="task-card-meta">
+                                            <div class="task-card-meta-left">
+                                                <span><i class="fa-regular fa-comment"></i> 4</span>
+                                                <span><i class="fa-solid fa-paperclip"></i> 2</span>
+                                            </div>
+                                            <div class="avatars">
+                                                <div class="mini-avatar" style="background:#6366f1;">JD</div>
+                                                <div class="mini-avatar" style="background:#f59e0b;">SK</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="task-card">
+                                        <span class="task-card-label label-research">Research</span>
+                                        <h4>Competitor Analysis</h4>
+                                        <p>Analyze top 5 competitors' feature sets and pricing.</p>
+                                        <div class="task-card-meta">
+                                            <div class="task-card-meta-left">
+                                                <span><i class="fa-regular fa-comment"></i> 1</span>
+                                            </div>
+                                            <div class="avatars">
+                                                <div class="mini-avatar" style="background:#22c55e;">ML</div>
+                                            </div>
+                                        </div>
+                                    </div> -->
+                                </div>
+                            </div>
+
+                            <!-- In Progress -->
+                            <div class="board-column">
+                                <div class="board-column-header">
+                                    <span class="column-indicator progress"></span>
+                                    <h3>In Progress</h3>
+                                    <span id="c2" class="count">0</span>
+                                    <button id="dAdd2" class="add-task-btn"><i class="fa-solid fa-plus"></i></button>
+                                </div>
+                                <div id="bc2" class="board-cards">
+                                    <!-- <div class="task-card">
+                                        <span class="task-card-label label-dev">Development</span>
+                                        <span class="task-priority priority-high"><i class="fa-solid fa-flag"></i>
+                                            High</span>
+                                        <h4>User Authentication API</h4>
+                                        <p>Implement OAuth2 login flow with JWT token management.</p>
+                                    </div> -->
+                                    <!-- <div class="task-card">
+                                        <span class="task-card-label label-feature">Feature</span>
+                                        <span class="task-priority priority-medium"><i class="fa-solid fa-flag"></i>
+                                            Medium</span>
+                                        <h4>Dashboard Analytics</h4>
+                                        <p>Build real-time chart widgets for the admin dashboard.</p>
+                                    </div> -->
+                                </div>
+                            </div>
+
+                            <!-- Done -->
+                            <div class="board-column">
+                                <div class="board-column-header">
+                                    <span class="column-indicator done"></span>
+                                    <h3>Done</h3>
+                                    <span id="c3" class="count">0</span>
+                                </div>
+                                <div id="bc3" class="board-cards">
+                                    <!-- <div class="task-card" style="opacity:.7;">
+                                        <span class="task-card-label label-dev">Development</span>
+                                        <h4>Setup CI/CD Pipeline</h4>
+                                        <p>Configure GitHub Actions for automated testing and deployment.</p>
+                                    </div> -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Activity Feed -->
+                    <!-- <div class="activity-section">
+                        <h3><i class="fa-solid fa-clock-rotate-left"
+                                style="color:var(--clr-text-muted);margin-right:8px;"></i> Recent Activity</h3>
+                        <div class="activity-list">
+                            <div class="activity-item">
+                                <div class="activity-icon completed"><i class="fa-solid fa-check"></i></div>
+                                <div class="activity-content">
+                                    <p><strong>Alex Kim</strong> completed <strong>"Setup CI/CD Pipeline"</strong></p>
+                                    <div class="activity-time">2 minutes ago</div>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon comment"><i class="fa-solid fa-comment"></i></div>
+                                <div class="activity-content">
+                                    <p><strong>Sarah K.</strong> commented on <strong>"User Auth API"</strong></p>
+                                    <div class="activity-time">15 minutes ago</div>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon created"><i class="fa-solid fa-plus"></i></div>
+                                <div class="activity-content">
+                                    <p><strong>Mike L.</strong> created task <strong>"Competitor Analysis"</strong></p>
+                                    <div class="activity-time">1 hour ago</div>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon updated"><i class="fa-solid fa-pen"></i></div>
+                                <div class="activity-content">
+                                    <p><strong>Alex Kim</strong> updated priority on <strong>"Dashboard
+                                            Analytics"</strong></p>
+                                    <div class="activity-time">3 hours ago</div>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon created"><i class="fa-solid fa-folder-plus"></i></div>
+                                <div class="activity-content">
+                                    <p><strong>Alex Kim</strong> created project <strong>"Mobile App v2"</strong></p>
+                                    <div class="activity-time">Yesterday</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div> -->
+                </div>
+            </section>
+
+            <!-- ═══════════════════════════════════
+           PAGE: TASKS (List View)
+      ═══════════════════════════════════ -->
+            <section id="page-tasks" class="page" style="display:none;">
+                <div class="page-title-bar">
+                    <div>
+                        <h1>My Tasks</h1>
+                        <p>Manage and track all your tasks in one place.</p>
+                    </div>
+                    <button class="btn btn-primary btn-sm" id="openNewTaskModal2"><i class="fa-solid fa-plus"></i> New
+                        Task</button>
+                </div>
+
+                <!-- Tabs -->
+                <div class="tabs-bar">
+                    <button class="tab-btn active" data-tab="list-view">
+                        <i class="fa-solid fa-list"></i> List
+                    </button>
+                    <button class="tab-btn" data-tab="board-view">
+                        <i class="fa-solid fa-columns"></i> Board
+                    </button>
+                </div>
+
+                <!-- Filters -->
+                <div class="filter-bar">
+                    <button class="filter-chip active"><i class="fa-solid fa-border-all"></i> All</button>
+                    <button class="filter-chip"><i class="fa-solid fa-flag"></i> High Priority</button>
+                    <button class="filter-chip">To Do</button>
+                    <button class="filter-chip">In Progress</button>
+                    <button class="filter-chip">In Review</button>
+                    <button class="filter-chip">Done</button>
+                </div>
+
+                <!-- List View -->
+                <div class="tab-content active" id="list-view">
+                    <div class="task-table-wrapper">
+                        <table class="task-table">
+                            <thead>
+                                <tr>
+                                    <th>Task</th>
+                                    <th>Status</th>
+                                    <th>Priority</th>
+                                    <th>Assignee</th>
+                                    <th>Due Date</th>
+                                    <th>Project</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="taskTableBody">
+                                <!-- <tr>
+                                    <td>
+                                        <div class="task-title-cell">
+                                            <input type="checkbox" />
+                                            <span class="task-name">Redesign Landing Page</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="status-badge status-todo">To Do</span></td>
+                                    <td><span class="task-priority priority-medium"><i class="fa-solid fa-flag"></i>
+                                            Medium</span></td>
+                                    <td>
+                                        <div class="assignee-cell">
+                                            <div class="assignee-avatar" style="background:#6366f1;">JD</div>
+                                            <span>John D.</span>
+                                        </div>
+                                    </td>
+                                    <td class="due-date">Jan 15, 2026</td>
+                                    <td><span style="font-size:.75rem;color:var(--clr-text-muted);">Website
+                                            Redesign</span></td>
+                                    <td>
+                                        <div class="actions-cell">
+                                            <button class="edit-btn" data-tooltip="Edit">
+                                                <i class="fa-solid fa-pen"></i>
+                                            </button>
+                                            <button class="delete-btn" data-tooltip="Delete"><i
+                                                    class="fa-solid fa-trash"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="task-title-cell">
+                                            <input type="checkbox" />
+                                            <span class="task-name">User Authentication API</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="status-badge status-progress">In Progress</span></td>
+                                    <td><span class="task-priority priority-high"><i class="fa-solid fa-flag"></i>
+                                            High</span></td>
+                                    <td>
+                                        <div class="assignee-cell">
+                                            <div class="assignee-avatar" style="background:#ef4444;">RW</div>
+                                            <span>Rachel W.</span>
+                                        </div>
+                                    </td>
+                                    <td class="due-date overdue">Jan 10, 2026</td>
+                                    <td><span style="font-size:.75rem;color:var(--clr-text-muted);">API
+                                            Integration</span></td>
+                                    <td>
+                                        <div class="actions-cell">
+                                            <button class="edit-btn" data-tooltip="Edit">
+                                                <i class="fa-solid fa-pen"></i></button>
+                                            <button class="delete-btn" data-tooltip="Delete"><i
+                                                    class="fa-solid fa-trash"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="task-title-cell">
+                                            <input type="checkbox" />
+                                            <span class="task-name">Dashboard Analytics Widgets</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="status-badge status-progress">In Progress</span></td>
+                                    <td><span class="task-priority priority-medium"><i class="fa-solid fa-flag"></i>
+                                            Medium</span></td>
+                                    <td>
+                                        <div class="assignee-cell">
+                                            <div class="assignee-avatar" style="background:#f59e0b;">TP</div>
+                                            <span>Tom P.</span>
+                                        </div>
+                                    </td>
+                                    <td class="due-date">Jan 20, 2026</td>
+                                    <td><span style="font-size:.75rem;color:var(--clr-text-muted);">Mobile App v2</span>
+                                    </td>
+                                    <td>
+                                        <div class="actions-cell">
+                                            <button class="edit-btn" data-tooltip="Edit">
+                                                <i class="fa-solid fa-pen"></i></button>
+                                            <button class="delete-btn" data-tooltip="Delete"><i
+                                                    class="fa-solid fa-trash"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="task-title-cell">
+                                            <input type="checkbox" />
+                                            <span class="task-name">Competitor Analysis Report</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="status-badge status-review">In Review</span></td>
+                                    <td><span class="task-priority priority-low"><i class="fa-solid fa-flag"></i>
+                                            Low</span></td>
+                                    <td>
+                                        <div class="assignee-cell">
+                                            <div class="assignee-avatar" style="background:#22c55e;">ML</div>
+                                            <span>Mike L.</span>
+                                        </div>
+                                    </td>
+                                    <td class="due-date">Jan 18, 2026</td>
+                                    <td><span style="font-size:.75rem;color:var(--clr-text-muted);">Marketing
+                                            Campaign</span></td>
+                                    <td>
+                                        <div class="actions-cell">
+                                            <button class="edit-btn" data-tooltip="Edit">
+                                                <i class="fa-solid fa-pen"></i></button>
+                                            <button class="delete-btn" data-tooltip="Delete"><i
+                                                    class="fa-solid fa-trash"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="task-title-cell">
+                                            <input type="checkbox" checked />
+                                            <span class="task-name"
+                                                style="text-decoration:line-through;opacity:.5;">Setup CI/CD
+                                                Pipeline</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="status-badge status-done">Done</span></td>
+                                    <td><span class="task-priority priority-high"><i class="fa-solid fa-flag"></i>
+                                            High</span></td>
+                                    <td>
+                                        <div class="assignee-cell">
+                                            <div class="assignee-avatar" style="background:#6366f1;">AK</div>
+                                            <span>Alex K.</span>
+                                        </div>
+                                    </td>
+                                    <td class="due-date">Jan 8, 2026</td>
+                                    <td><span style="font-size:.75rem;color:var(--clr-text-muted);">API
+                                            Integration</span></td>
+                                    <td>
+                                        <div class="actions-cell">
+                                            <button id="ed" data-tooltip="Edit"><i class="fa-solid fa-pen"></i></button>
+                                            <button class="delete-btn" data-tooltip="Delete"><i
+                                                    class="fa-solid fa-trash"></i></button>
+                                        </div>
+                                    </td>
+                                </tr> -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Board View -->
+                <div class="tab-content" id="board-view">
+                    <div class="board">
+                        <!-- To Do -->
+                        <div class="board-column">
+                            <div class="board-column-header">
+                                <span class="column-indicator todo"></span>
+                                <h3>To Do</h3>
+                                <span class="count">2</span>
+                                <button class="add-task-btn"><i class="fa-solid fa-plus"></i></button>
+                            </div>
+                            <div class="board-cards">
+                                <div class="task-card">
+                                    <span class="task-card-label label-design">Design</span>
+                                    <h4>Redesign Landing Page</h4>
+                                    <p>Update hero section and CTA buttons with new brand guidelines.</p>
+                                    <div class="task-card-meta">
+                                        <div class="task-card-meta-left">
+                                            <span><i class="fa-regular fa-comment"></i> 4</span>
+                                            <span><i class="fa-solid fa-paperclip"></i> 2</span>
+                                        </div>
+                                        <div class="avatars">
+                                            <div class="mini-avatar" style="background:#6366f1;">JD</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="task-card">
+                                    <span class="task-card-label label-research">Research</span>
+                                    <h4>Competitor Analysis</h4>
+                                    <p>Analyze top 5 competitors' feature sets and pricing.</p>
+                                    <div class="task-card-meta">
+                                        <div class="task-card-meta-left">
+                                            <span><i class="fa-regular fa-comment"></i> 1</span>
+                                        </div>
+                                        <div class="avatars">
+                                            <div class="mini-avatar" style="background:#22c55e;">ML</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- In Progress -->
+                        <div class="board-column">
+                            <div class="board-column-header">
+                                <span class="column-indicator progress"></span>
+                                <h3>In Progress</h3>
+                                <span class="count">2</span>
+                                <button class="add-task-btn"><i class="fa-solid fa-plus"></i></button>
+                            </div>
+                            <div class="board-cards">
+                                <div class="task-card">
+                                    <span class="task-card-label label-dev">Development</span>
+                                    <span class="task-priority priority-high"><i class="fa-solid fa-flag"></i>
+                                        High</span>
+                                    <h4>User Authentication API</h4>
+                                    <p>Implement OAuth2 login flow with JWT management.</p>
+                                    <div class="task-card-meta">
+                                        <div class="task-card-meta-left">
+                                            <span><i class="fa-regular fa-comment"></i> 8</span>
+                                            <span><i class="fa-solid fa-paperclip"></i> 3</span>
+                                        </div>
+                                        <div class="avatars">
+                                            <div class="mini-avatar" style="background:#ef4444;">RW</div>
+                                            <div class="mini-avatar" style="background:#6366f1;">AK</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="task-card">
+                                    <span class="task-card-label label-feature">Feature</span>
+                                    <span class="task-priority priority-medium"><i class="fa-solid fa-flag"></i>
+                                        Medium</span>
+                                    <h4>Dashboard Analytics</h4>
+                                    <p>Build real-time chart widgets for the admin dashboard.</p>
+                                    <div class="task-card-meta">
+                                        <div class="task-card-meta-left">
+                                            <span><i class="fa-regular fa-comment"></i> 3</span>
+                                        </div>
+                                        <div class="avatars">
+                                            <div class="mini-avatar" style="background:#f59e0b;">TP</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- In Review -->
+                        <div class="board-column">
+                            <div class="board-column-header">
+                                <span class="column-indicator review"></span>
+                                <h3>In Review</h3>
+                                <span class="count">1</span>
+                                <button class="add-task-btn"><i class="fa-solid fa-plus"></i></button>
+                            </div>
+                            <div class="board-cards">
+                                <div class="task-card">
+                                    <span class="task-card-label label-research">Research</span>
+                                    <span class="task-priority priority-low"><i class="fa-solid fa-flag"></i> Low</span>
+                                    <h4>Competitor Analysis Report</h4>
+                                    <p>Compile findings from research into presentation.</p>
+                                    <div class="task-card-meta">
+                                        <div class="task-card-meta-left">
+                                            <span><i class="fa-regular fa-comment"></i> 2</span>
+                                        </div>
+                                        <div class="avatars">
+                                            <div class="mini-avatar" style="background:#22c55e;">ML</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Done -->
+                        <div class="board-column">
+                            <div class="board-column-header">
+                                <span class="column-indicator done"></span>
+                                <h3>Done</h3>
+                                <span class="count">1</span>
+                            </div>
+                            <div class="board-cards">
+                                <div class="task-card" style="opacity:.65;">
+                                    <span class="task-card-label label-dev">Development</span>
+                                    <h4>Setup CI/CD Pipeline</h4>
+                                    <p>GitHub Actions for automated testing & deploy.</p>
+                                    <div class="task-card-meta">
+                                        <div class="task-card-meta-left">
+                                            <span><i class="fa-regular fa-comment"></i> 5</span>
+                                        </div>
+                                        <div class="avatars">
+                                            <div class="mini-avatar" style="background:#6366f1;">AK</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══════════════════════════════════
+           PAGE: PROJECTS
+      ═══════════════════════════════════ -->
+            <section id="page-projects" class="page" style="display:none;">
+                <div class="page-title-bar">
+                    <div>
+                        <h1>Projects</h1>
+                        <p>Organize work into focused projects.</p>
+                    </div>
+                    <button class="btn btn-primary btn-sm" id="openNewProjectModal2"><i class="fa-solid fa-plus"></i>
+                        New Project</button>
+                </div>
+
+                <div class="filter-bar">
+                    <button id="alll" class="filter-chip active"><i class="fa-solid fa-border-all"></i> All</button>
+                    <button id="actv" class="filter-chip">Active</button>
+                    <button id="cmpltd" class="filter-chip">Completed</button>
+                    <!-- <button class="filter-chip">On Hold</button> -->
+                </div>
+
+                <div class="projects-grid">
+                    <!-- Project 1
+                    <div class="project-card">
+                        <div class="project-card-header">
+                            <div id="ic" class="project-icon" style="background:#e0e7ff;color:#4f46e5;">
+                                <i class="fa-solid fa-globe"></i>
+                            </div>
+                            <div>
+                                <h3 id="projH">Website Redesign</h3>
+                                <p id="projP">Complete overhaul of the company website with modern UI/UX.</p>
+                            </div>
+                        </div>
+                        <div class="progress-bar-wrapper">
+                            <div class="progress-bar-top">
+                                <span>Progress</span>
+                                <span class="percentages">68%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div id="pbar" class="progress-bar-fill"
+                                    style="width:68%;background:linear-gradient(90deg,#6366f1,#4f46e5);"></div>
+                            </div>
+                        </div>
+                        <div class="project-card-footer">
+                            <div class="team">
+                                <div class="mini-avatar" style="background:#6366f1;">JD</div>
+                                <div class="mini-avatar" style="background:#f59e0b;">SK</div>
+                                <div class="mini-avatar" style="background:#22c55e;">ML</div>
+                            </div>
+                            <div id="dates" class="due"><i class="fa-regular fa-calendar"></i> Feb 28, 2026</div>
+                        </div>
+                    </div>
+
+                    Project 2
+                    <div class="project-card">
+                        <div class="project-card-header">
+                            <div class="project-icon" style="background:#fef3c7;color:#d97706;">
+                                <i class="fa-solid fa-mobile-screen"></i>
+                            </div>
+                            <div>
+                                <h3>Mobile App v2</h3>
+                                <p>Version 2 with push notifications and offline mode.</p>
+                            </div>
+                        </div>
+                        <div class="progress-bar-wrapper">
+                            <div class="progress-bar-top">
+                                <span>Progress</span>
+                                <span>42%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill"
+                                    style="width:42%;background:linear-gradient(90deg,#fbbf24,#d97706);"></div>
+                            </div>
+                        </div>
+                        <div class="project-card-footer">
+                            <div class="team">
+                                <div class="mini-avatar" style="background:#ef4444;">RW</div>
+                                <div class="mini-avatar" style="background:#f59e0b;">TP</div>
+                            </div>
+                            <div class="due"><i class="fa-regular fa-calendar"></i> Mar 15, 2026</div>
+                        </div>
+                    </div>
+
+                    Project 3
+                    <div class="project-card">
+                        <div class="project-card-header">
+                            <div class="project-icon" style="background:#dcfce7;color:#16a34a;">
+                                <i class="fa-solid fa-bullhorn"></i>
+                            </div>
+                            <div>
+                                <h3>Marketing Campaign</h3>
+                                <p>Q1 2026 digital marketing campaign across all channels.</p>
+                            </div>
+                        </div>
+                        <div class="progress-bar-wrapper">
+                            <div class="progress-bar-top">
+                                <span>Progress</span>
+                                <span>85%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill"
+                                    style="width:85%;background:linear-gradient(90deg,#4ade80,#16a34a);"></div>
+                            </div>
+                        </div>
+                        <div class="project-card-footer">
+                            <div class="team">
+                                <div class="mini-avatar" style="background:#22c55e;">ML</div>
+                                <div class="mini-avatar" style="background:#6366f1;">AK</div>
+                                <div class="mini-avatar" style="background:#f59e0b;">SK</div>
+                                <div class="mini-avatar" style="background:#ef4444;">RW</div>
+                            </div>
+                            <div class="due"><i class="fa-regular fa-calendar"></i> Jan 31, 2026</div>
+                        </div>
+                    </div>
+
+                    Project 4
+                    <div class="project-card">
+                        <div class="project-card-header">
+                            <div class="project-icon" style="background:#fee2e2;color:#ef4444;">
+                                <i class="fa-solid fa-plug"></i>
+                            </div>
+                            <div>
+                                <h3>API Integration</h3>
+                                <p>Third-party payment gateway and CRM integrations.</p>
+                            </div>
+                        </div>
+                        <div class="progress-bar-wrapper">
+                            <div class="progress-bar-top">
+                                <span>Progress</span>
+                                <span>25%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill"
+                                    style="width:25%;background:linear-gradient(90deg,#f87171,#ef4444);"></div>
+                            </div>
+                        </div>
+                        <div class="project-card-footer">
+                            <div class="team">
+                                <div class="mini-avatar" style="background:#ef4444;">RW</div>
+                                <div class="mini-avatar" style="background:#6366f1;">AK</div>
+                            </div>
+                            <div class="due"><i class="fa-regular fa-calendar"></i> Apr 10, 2026</div>
+                        </div>
+                    </div> -->
+
+                    <!-- Add New Project Card -->
+                    <div class="project-card"
+                        style="border:2px dashed var(--clr-border);display:flex;align-items:center;justify-content:center;min-height:220px;cursor:pointer;"
+                        id="addProjectCard">
+                        <div class="empty-state" style="padding:20px;">
+                            <i class="fa-solid fa-folder-plus"
+                                style="font-size:2rem;color:var(--clr-text-muted);opacity:.4;"></i>
+                            <h3 style="margin-top:12px;">Create New Project</h3>
+                            <p>Start organizing a new initiative.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══════════════════════════════════
+           PAGE: CALENDAR
+      ═══════════════════════════════════ -->
+            <section id="page-calendar" class="page" style="display:none;">
+                <div class="page-title-bar">
+                    <div>
+                        <h1>Calendar</h1>
+                        <p>Visualize your tasks and deadlines.</p>
+                    </div>
+                    <button class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> Add Event</button>
+                </div>
+
+                <div class="calendar-wrapper">
+                    <div class="calendar-header">
+                        <h3 id="calendarMonth">January 2026</h3>
+                        <div class="calendar-nav">
+                            <button id="prevMonth"><i class="fa-solid fa-chevron-left"></i></button>
+                            <button class="btn btn-outline btn-sm" id="todayBtn">Today</button>
+                            <button id="nextMonth"><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid">
+                        <div class="calendar-day-name">Sun</div>
+                        <div class="calendar-day-name">Mon</div>
+                        <div class="calendar-day-name">Tue</div>
+                        <div class="calendar-day-name">Wed</div>
+                        <div class="calendar-day-name">Thu</div>
+                        <div class="calendar-day-name">Fri</div>
+                        <div class="calendar-day-name">Sat</div>
+
+                        <!-- Week 1 -->
+                        <div class="calendar-day other-month">
+                            <div class="day-number">28</div>
+                        </div>
+                        <div class="calendar-day other-month">
+                            <div class="day-number">29</div>
+                        </div>
+                        <div class="calendar-day other-month">
+                            <div class="day-number">30</div>
+                        </div>
+                        <div class="calendar-day other-month">
+                            <div class="day-number">31</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">1</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">2</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">3</div>
+                        </div>
+
+                        <!-- Week 2 -->
+                        <div class="calendar-day">
+                            <div class="day-number">4</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">5</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">6</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">7</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">8</div>
+                            <div class="calendar-event" style="background:#dcfce7;color:#16a34a;">CI/CD Done ✓</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">9</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">10</div>
+                            <div class="calendar-event" style="background:#fee2e2;color:#ef4444;">Auth API Due</div>
+                        </div>
+
+                        <!-- Week 3 -->
+                        <div class="calendar-day">
+                            <div class="day-number">11</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">12</div>
+                        </div>
+                        <div class="calendar-day today">
+                            <div class="day-number">13</div>
+                            <div class="calendar-event" style="background:#e0e7ff;color:#4f46e5;">Team Standup</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">14</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">15</div>
+                            <div class="calendar-event" style="background:#fef3c7;color:#d97706;">Landing Page</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">16</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">17</div>
+                        </div>
+
+                        <!-- Week 4 -->
+                        <div class="calendar-day">
+                            <div class="day-number">18</div>
+                            <div class="calendar-event" style="background:#f3e8ff;color:#7c3aed;">Analysis Report</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">19</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">20</div>
+                            <div class="calendar-event" style="background:#e0e7ff;color:#4f46e5;">Analytics Widgets
+                            </div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">21</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">22</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">23</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">24</div>
+                        </div>
+
+                        <!-- Week 5 -->
+                        <div class="calendar-day">
+                            <div class="day-number">25</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">26</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">27</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">28</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">29</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">30</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">31</div>
+                            <div class="calendar-event" style="background:#dcfce7;color:#16a34a;">Marketing Due</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══════════════════════════════════
+           PAGE: ACTIVITY
+      ═══════════════════════════════════ -->
+            <section id="page-activity" class="page" style="display:none;">
+                <div class="page-title-bar">
+                    <div>
+                        <h1>Activity Log</h1>
+                        <p>Complete history of all changes and updates.</p>
+                    </div>
+                    <div style="display:flex;gap:10px;">
+                        <button class="btn btn-outline btn-sm"><i class="fa-solid fa-filter"></i> Filter</button>
+                        <!-- <button class="btn btn-outline btn-sm"><i class="fa-solid fa-download"></i> Export</button> -->
+                    </div>
+                </div>
+
+                <div class="activity-section" style="max-width:700px;">
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon completed"><i class="fa-solid fa-check"></i></div>
+                            <div class="activity-content">
+                                <p><strong>Alex Kim</strong> completed task <strong>"Setup CI/CD Pipeline"</strong> in
+                                    <strong>API Integration</strong>
+                                </p>
+                                <div class="activity-time"><i class="fa-regular fa-clock"></i> 2 minutes ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon comment"><i class="fa-solid fa-comment"></i></div>
+                            <div class="activity-content">
+                                <p><strong>Sarah K.</strong> commented on <strong>"User Authentication API"</strong>:
+                                    <em>"Let's use refresh tokens for better security"</em>
+                                </p>
+                                <div class="activity-time"><i class="fa-regular fa-clock"></i> 15 minutes ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon created"><i class="fa-solid fa-plus"></i></div>
+                            <div class="activity-content">
+                                <p><strong>Mike L.</strong> created task <strong>"Competitor Analysis"</strong> in
+                                    <strong>Marketing Campaign</strong>
+                                </p>
+                                <div class="activity-time"><i class="fa-regular fa-clock"></i> 1 hour ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon updated"><i class="fa-solid fa-pen"></i></div>
+                            <div class="activity-content">
+                                <p><strong>Alex Kim</strong> changed priority of <strong>"Dashboard Analytics"</strong>
+                                    from <span style="color:var(--clr-success);font-weight:600;">Low</span> to <span
+                                        style="color:var(--clr-warning);font-weight:600;">Medium</span></p>
+                                <div class="activity-time"><i class="fa-regular fa-clock"></i> 3 hours ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon updated"><i class="fa-solid fa-arrows-rotate"></i></div>
+                            <div class="activity-content">
+                                <p><strong>Rachel W.</strong> moved <strong>"User Authentication API"</strong> to <span
+                                        class="status-badge status-progress" style="display:inline-flex;">In
+                                        Progress</span></p>
+                                <div class="activity-time"><i class="fa-regular fa-clock"></i> 5 hours ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon created"><i class="fa-solid fa-folder-plus"></i></div>
+                            <div class="activity-content">
+                                <p><strong>Alex Kim</strong> created project <strong>"Mobile App v2"</strong> with 6
+                                    initial tasks</p>
+                                <div class="activity-time"><i class="fa-regular fa-clock"></i> Yesterday at 4:30 PM
+                                </div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon comment"><i class="fa-solid fa-comment"></i></div>
+                            <div class="activity-content">
+                                <p><strong>Tom P.</strong> commented on <strong>"Dashboard Analytics"</strong>:
+                                    <em>"Started working on the chart component"</em>
+                                </p>
+                                <div class="activity-time"><i class="fa-regular fa-clock"></i> Yesterday at 2:15 PM
+                                </div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon completed"><i class="fa-solid fa-check"></i></div>
+                            <div class="activity-content">
+                                <p><strong>John D.</strong> completed task <strong>"Wireframe Review"</strong> in
+                                    <strong>Website Redesign</strong>
+                                </p>
+                                <div class="activity-time"><i class="fa-regular fa-clock"></i> 2 days ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+       MODAL: New Task
+  ═══════════════════════════════════════ -->
+    <div class="modal-overlay" id="newTaskModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-plus" style="color:var(--clr-primary);margin-right:8px;"></i> Create New Task
+                </h2>
+                <button class="modal-close" id="closeTaskModal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="newTaskForm">
+                    <div class="form-group">
+                        <label for="taskTitle">Task Title *</label>
+                        <input type="text" id="taskTitle" placeholder="Enter task title..." required />
+                    </div>
+                    <div class="form-group">
+                        <label for="taskDescription">Description</label>
+                        <textarea id="taskDescription" placeholder="Describe the task..."></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="taskProject">Project</label>
+                            <select id="taskProject">
+                                <option value="">Select project</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="taskStatus">Status</label>
+                            <select id="taskStatus">
+                                <option>To Do</option>
+                                <option>In Progress</option>
+                                <option>In Review</option>
+                                <option>Done</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="taskPriority">Priority</label>
+                            <select id="taskPriority">
+                                <option>Low</option>
+                                <option selected>Medium</option>
+                                <option>High</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="taskDue">Due Date</label>
+                            <input type="date" id="taskDue" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskAssignee">Assignee</label>
+                        <select id="taskAssignee">
+                            <option value="">Unassigned</option>
+                            <option>Alex Kim</option>
+                            <option>John D.</option>
+                            <option>Sarah K.</option>
+                            <option>Rachel W.</option>
+                            <option>Mike L.</option>
+                            <option>Tom P.</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskLabel">Label</label>
+                        <select id="taskLabel">
+                            <option>Development</option>
+                            <option>Design</option>
+                            <option>Bug</option>
+                            <option>Feature</option>
+                            <option>Research</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline btn-sm" id="cancelTaskModal">Cancel</button>
+                <button class="btn btn-primary btn-sm" type="submit" form="newTaskForm">
+                    <i class="fa-solid fa-check"></i> Create Task
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+       MODAL: New Project
+  ═══════════════════════════════════════ -->
+    <div class="modal-overlay" id="newProjectModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-folder-plus" style="color:var(--clr-primary);margin-right:8px;"></i> Create
+                    New Project</h2>
+                <button class="modal-close" id="closeProjectModal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="newProjectForm">
+                    <div class="form-group">
+                        <label for="projectName">Project Name *</label>
+                        <input type="text" id="projectName" placeholder="Enter project name..." required />
+                    </div>
+                    <div class="form-group">
+                        <label for="projectDescription">Description</label>
+                        <textarea id="projectDescription" placeholder="What is this project about?"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="projectColor">Color</label>
+                            <select id="projectColor">
+                                <option value="#4f46e5">Indigo</option>
+                                <option value="#22c55e">Green</option>
+                                <option value="#f59e0b">Amber</option>
+                                <option value="#ef4444">Red</option>
+                                <option value="#06b6d4">Cyan</option>
+                                <option value="#8b5cf6">Purple</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="projectDeadline">Deadline</label>
+                            <input type="date" id="projectDeadline" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="projectIcon">Icon</label>
+                        <select id="projectIcon">
+                            <option value="fa-solid fa-globe">🌐 Globe</option>
+                            <option value="fa-solid fa-mobile-screen">📱 Mobile</option>
+                            <option value="fa-solid fa-bullhorn">📢 Marketing</option>
+                            <option value="fa-solid fa-plug">🔌 Integration</option>
+                            <option value="fa-solid fa-rocket">🚀 Launch</option>
+                            <option value="fa-solid fa-palette">🎨 Design</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline btn-sm" id="cancelProjectModal">Cancel</button>
+                <button id="projectSubmit" class="btn btn-primary btn-sm" type="submit" form="newProjectForm">
+                    <i class="fa-solid fa-check"></i> Create Project
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 
+  ═══════════════════════════════════════════════════════════════
+  YOUR JAVASCRIPT GOES HERE
+  
+  Useful IDs & Classes for your JS:
+  
+  NAVIGATION:
+  - .sidebar-link[data-page="..."] → Dashboard, Tasks, Projects, Calendar, Activity
+  - .page#page-dashboard, #page-tasks, #page-projects, #page-calendar, #page-activity
+  - #hamburgerBtn → Mobile menu toggle
+  - #sidebarOverlay → Click to close mobile sidebar
+  - #sidebar → Add/remove .open class for mobile
+  
+  MODALS:
+  - #newTaskModal, #newProjectModal → Add/remove .open class
+  - #openNewTaskModal, #openNewTaskModal2 → Buttons to open task modal
+  - #openNewProjectModal, #openNewProjectModal2, #addProjectCard → Open project modal
+  - #closeTaskModal, #cancelTaskModal → Close task modal
+  - #closeProjectModal, #cancelProjectModal → Close project modal
+  
+  FORMS:
+  - #newTaskForm → Task form
+    - #taskTitle, #taskDescription, #taskProject, #taskStatus
+    - #taskPriority, #taskDue, #taskAssignee, #taskLabel
+  - #newProjectForm → Project form
+    - #projectName, #projectDescription, #projectColor
+    - #projectDeadline, #projectIcon
+  
+  TABS (My Tasks page):
+  - .tab-btn[data-tab="list-view"], .tab-btn[data-tab="board-view"]
+  - .tab-content#list-view, .tab-content#board-view
+  
+  FILTERS:
+  - .filter-chip → Toggle .active class
+  
+  TASK TABLE:
+  - #taskTableBody → Insert task rows here
+  
+  BOARD:
+  - .board-column .board-cards → Insert task cards here
+  - .add-task-btn → Add task to specific column
+  
+  SEARCH:
+  - #globalSearch → Global search input
+  
+  CALENDAR:
+  - working on it
+  ═══════════════════════════════════════════════════════════════
+-->
+    <script src="script.js"></script>
+
+</body>
+
+</html>
