@@ -36,7 +36,7 @@ Frontend:
 https://taskflow-olive-nine.vercel.app
 
 Backend API:
-https://your-railway-url.up.railway.app/docs
+https://taskflow-production-2a75.up.railway.app/
 
 ## Screenshots
 
