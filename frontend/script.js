@@ -105,7 +105,7 @@ function closeF() {
 }
 frm.addEventListener("submit", fsubmit)
 async function fsubmit(e) {
-    let url = "http://127.0.0.1:8000"
+    let url = "https://taskflow-production-2a75.up.railway.app/"
     e.preventDefault();
     let obj = {
         Title: frmTitle.value,
@@ -152,7 +152,7 @@ addTab.addEventListener("click", async function (e) {
 
     if (!ans) return;
 
-    let url = "http://127.0.0.1:8000";
+    let url = "https://taskflow-production-2a75.up.railway.app/";
 
     let response = await fetch(`${url}/delTask/${id}`, {
         method: "DELETE"
@@ -331,7 +331,7 @@ pForm.addEventListener("submit", pSubmit)
 async function pSubmit(e) {
     e.preventDefault();
 
-    let url = "http://127.0.0.1:8000";
+    let url = "https://taskflow-production-2a75.up.railway.app/";
 
     if (!pDL.value) {
         alert("Please enter a deadline");
@@ -546,7 +546,7 @@ function dispDashProj(d) {
     });
 }
 async function getData() {
-    let url = "http://127.0.0.1:8000";
+    let url = "https://taskflow-production-2a75.up.railway.app/";
     let response = await fetch(`${url}/disp`, {
         method: "GET"
     });
@@ -633,7 +633,7 @@ async function getData() {
     dispDashProj(data);
 }
 async function getTask() {
-    let url = "http://127.0.0.1:8000"
+    let url = "https://taskflow-production-2a75.up.railway.app/"
     let response = await fetch(`${url}/dispTask`, {
         method: "GET"
     })
