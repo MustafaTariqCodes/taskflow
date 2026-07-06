@@ -1,3 +1,4 @@
+let url = "https://taskflow-production-2a75.up.railway.app"
 let DB = []
 let pDB = []
 let taskDB = []
@@ -105,7 +106,6 @@ function closeF() {
 }
 frm.addEventListener("submit", fsubmit)
 async function fsubmit(e) {
-    let url = "https://taskflow-production-2a75.up.railway.app/"
     e.preventDefault();
     let obj = {
         Title: frmTitle.value,
@@ -152,7 +152,6 @@ addTab.addEventListener("click", async function (e) {
 
     if (!ans) return;
 
-    let url = "https://taskflow-production-2a75.up.railway.app/";
 
     let response = await fetch(`${url}/delTask/${id}`, {
         method: "DELETE"
@@ -331,7 +330,6 @@ pForm.addEventListener("submit", pSubmit)
 async function pSubmit(e) {
     e.preventDefault();
 
-    let url = "https://taskflow-production-2a75.up.railway.app/";
 
     if (!pDL.value) {
         alert("Please enter a deadline");
@@ -441,7 +439,8 @@ function showCompleted(e) {
 allFltr.addEventListener("click", showAll)
 function showAll(e) {
     allFltr.classList.add("active")
-    allFltr.classList.remove("active")
+    act.classList.remove("active")
+    cmp.classList.remove("active")
     let pfilter = grid.querySelectorAll(".project-card")
     pfilter.forEach(element => {
         element.style.display = ""
@@ -546,7 +545,6 @@ function dispDashProj(d) {
     });
 }
 async function getData() {
-    let url = "https://taskflow-production-2a75.up.railway.app/";
     let response = await fetch(`${url}/disp`, {
         method: "GET"
     });
@@ -633,11 +631,16 @@ async function getData() {
     dispDashProj(data);
 }
 async function getTask() {
-    let url = "https://taskflow-production-2a75.up.railway.app/"
     let response = await fetch(`${url}/dispTask`, {
         method: "GET"
     })
-    let data = await response.json()
+    console.log("Status:", response.status);
+
+    let data = await response.json();
+
+    console.log(data);
+    console.log(Array.isArray(data));
+    // let data = await response.json()
     taskDB = data
     let remRows = addTab.querySelectorAll("tr")
     remRows.forEach(element => {
