@@ -22,6 +22,34 @@ app.add_middleware(
     allow_headers=["*"],
 )
 cursor=db.cursor(dictionary=True)
+# Create tables if they don't exist
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS projects (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    project_name VARCHAR(255),
+    project_description TEXT,
+    project_colour VARCHAR(100),
+    project_deadline DATE,
+    project_icon VARCHAR(255)
+)
+""")
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS tasks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    Title VARCHAR(255),
+    Description TEXT,
+    Project VARCHAR(255),
+    Status VARCHAR(100),
+    Priority VARCHAR(100),
+    Due_Date DATE,
+    Assignn VARCHAR(255),
+    Label VARCHAR(255)
+)
+""")
+
+db.commit()
 class Project(BaseModel):
     project_name:str
     project_description:str
