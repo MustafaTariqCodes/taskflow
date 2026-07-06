@@ -1,31 +1,41 @@
 import os
+from dotenv import load_dotenv
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import mysql.connector
-from fastapi.middleware.cors import CORSMiddleware
-db = mysql.connector.connect(
-    host=os.getenv("MYSQLHOST"),
-    user=os.getenv("MYSQLUSER"),
-    password=os.getenv("MYSQLPASSWORD"),
-    database=os.getenv("MYSQLDATABASE"),
-    port=int(os.getenv("MYSQLPORT")),
-    use_pure=True
-)
-app= FastAPI()
+
+load_dotenv()
+
+
+def get_db():
+    return mysql.connector.connect(
+        host=os.getenv("MYSQLHOST"),
+        user=os.getenv("MYSQLUSER"),
+        password=os.getenv("MYSQLPASSWORD"),
+        database=os.getenv("MYSQLDATABASE"),
+        port=int(os.getenv("MYSQLPORT")),
+        use_pure=True
+    )
+
+
+app = FastAPI()
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],        # FIX: was locked to one exact origin/port,
-                                 # which silently blocks requests from any other
-                                 # dev server port or file:// origin
-    allow_credentials=False,    # FIX: must be False when allow_origins is "*"
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-cursor=db.cursor(dictionary=True)
-# Create tables if they don't exist
+
+
+# Create tables once when app starts
+db = get_db()
+cursor = db.cursor()
 
 cursor.execute("""
-CREATE TABLE IF NOT EXISTS projects (
+CREATE TABLE IF NOT EXISTS projects(
     id INT AUTO_INCREMENT PRIMARY KEY,
     project_name VARCHAR(255),
     project_description TEXT,
@@ -36,7 +46,7 @@ CREATE TABLE IF NOT EXISTS projects (
 """)
 
 cursor.execute("""
-CREATE TABLE IF NOT EXISTS tasks (
+CREATE TABLE IF NOT EXISTS tasks(
     id INT AUTO_INCREMENT PRIMARY KEY,
     Title VARCHAR(255),
     Description TEXT,
@@ -50,89 +60,141 @@ CREATE TABLE IF NOT EXISTS tasks (
 """)
 
 db.commit()
+cursor.close()
+db.close()
 class Project(BaseModel):
-    project_name:str
-    project_description:str
-    project_colour:str
-    project_deadline:str
-    project_icon:str
-    
+    project_name: str
+    project_description: str
+    project_colour: str
+    project_deadline: str
+    project_icon: str
+
 
 @app.post("/project")
-def add_project(project:Project):
-    sql="insert into projects(project_name,project_description,project_colour,project_deadline,project_icon) values(%s,%s,%s,%s,%s)"
-    value=(project.project_name,project.project_description,project.project_colour,project.project_deadline,project.project_icon)
-    cursor.execute(sql,value)
+def add_project(project: Project):
+
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+
+    sql = """
+    INSERT INTO projects
+    (project_name,project_description,project_colour,project_deadline,project_icon)
+    VALUES(%s,%s,%s,%s,%s)
+    """
+
+    value = (
+        project.project_name,
+        project.project_description,
+        project.project_colour,
+        project.project_deadline,
+        project.project_icon
+    )
+
+    cursor.execute(sql, value)
     db.commit()
-    return{"msg":"data inserted"}
+
+    cursor.close()
+    db.close()
+
+    return {"msg": "data inserted"}
 
 
 @app.get("/disp")
 def shdw():
-    sql="select * from projects"
-    cursor.execute(sql)
-    data=cursor.fetchall()
+
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+
+    cursor.execute("SELECT * FROM projects")
+    data = cursor.fetchall()
+
+    cursor.close()
+    db.close()
+
     return data
 
 @app.delete("/del/{id}")
-def dele(id:int):
-    sql="delete from projects where id = %s"
-    v=(id,)
-    cursor.execute(sql,v)
+def dele(id: int):
+
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+
+    cursor.execute("DELETE FROM projects WHERE id=%s", (id,))
     db.commit()
-    return{
-        "msg":"deleted"
-    }
+
+    cursor.close()
+    db.close()
+
+    return {"msg": "deleted"}
 class Task(BaseModel):
-    Title:str
-    Description:str
-    Project:str
-    Status:str
+    Title: str
+    Description: str
+    Project: str
+    Status: str
     Priority: str
-    Due_Date:str
+    Due_Date: str
     Assignn: str
-    Label:str
-    
+    Label: str
+
+
 @app.post("/task")
 def add_task(task: Task):
-    try:
-        sql = "insert into tasks(Title,Description,Project,Status,Priority,Due_Date,Assignn,Label) values(%s,%s,%s,%s,%s,%s,%s,%s)"
-        v = (
-            task.Title,
-            task.Description,
-            task.Project,
-            task.Status,
-            task.Priority,
-            task.Due_Date,
-            task.Assignn,
-            task.Label
-        )
 
-        cursor.execute(sql, v)
-        db.commit()
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
 
-        return {"msg": "task inserted"}
+    sql = """
+    INSERT INTO tasks
+    (Title,Description,Project,Status,Priority,Due_Date,Assignn,Label)
+    VALUES(%s,%s,%s,%s,%s,%s,%s,%s)
+    """
 
-    except Exception as e:
-        print(e)
-        return {"error": str(e)}
+    value = (
+        task.Title,
+        task.Description,
+        task.Project,
+        task.Status,
+        task.Priority,
+        task.Due_Date,
+        task.Assignn,
+        task.Label
+    )
+
+    cursor.execute(sql, value)
+    db.commit()
+
+    cursor.close()
+    db.close()
+
+    return {"msg": "task inserted"}
     
 @app.get("/dispTask")
 def disp2():
-    sql="select * from tasks"
-    cursor.execute(sql,)
-    data=cursor.fetchall()
+
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+
+    cursor.execute("SELECT * FROM tasks")
+    data = cursor.fetchall()
+
+    cursor.close()
+    db.close()
+
     return data
 
 @app.delete("/delTask/{id}")
-def deleteTask(id:int):
-    sql="delete from tasks where id= %s"
-    v=(id,)
-    cursor.execute(sql,v)
+def deleteTask(id: int):
+
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+
+    cursor.execute("DELETE FROM tasks WHERE id=%s", (id,))
     db.commit()
-    return{
-        "msg":"task deleted"
-    }
+
+    cursor.close()
+    db.close()
+
+    return {"msg": "task deleted"}
     
 # TEMPORARY DEBUG ROUTE — remove after we fix the issue
 @app.get("/debug")

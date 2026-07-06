@@ -330,7 +330,13 @@ function cancelProj() {
 pForm.addEventListener("submit", pSubmit)
 async function pSubmit(e) {
     e.preventDefault();
+
     let url = "http://127.0.0.1:8000";
+
+    if (!pDL.value) {
+        alert("Please enter a deadline");
+        return;
+    }
 
     let obj2 = {
         project_name: pName.value,
@@ -339,20 +345,33 @@ async function pSubmit(e) {
         project_deadline: pDL.value,
         project_icon: pIcon.value
     };
-    console.log(obj2)
-    let response = await fetch(`${url}/project`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(obj2)
 
-    });
-    let data = await response.json();
-    console.log(data.msg)
+    console.log("Sending:", obj2);
 
-    getData()
+    try {
+        let response = await fetch(`${url}/project`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(obj2)
+        });
 
-    closeProj();
-    pForm.reset();
+        console.log("Status:", response.status);
+
+        let data = await response.json();
+
+        console.log(data);
+
+        getData();
+
+        closeProj();
+
+        pForm.reset();
+
+    } catch (err) {
+        console.error(err);
+    }
 }
 n3Project.addEventListener("click", openP)
 n1Project.addEventListener("click", openP)
