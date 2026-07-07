@@ -73,8 +73,24 @@ let priorityClassMap = {
     "High": "priority-high"
 };
 
+let hamburgerBtn = document.getElementById("hamburgerBtn")
+let sidebar = document.getElementById("sidebar")
+let sidebarOverlay = document.getElementById("sidebarOverlay")
+
+hamburgerBtn.addEventListener("click", toggleSidebar)
+function toggleSidebar() {
+    sidebar.classList.toggle("open")
+    sidebarOverlay.classList.toggle("open")
+}
+sidebarOverlay.addEventListener("click", closeSidebar)
+function closeSidebar() {
+    sidebar.classList.remove("open")
+    sidebarOverlay.classList.remove("open")
+}
+
 sbr.forEach(element => {
     element.addEventListener("click", sbrFun)
+    element.addEventListener("click", closeSidebar)
 });
 function sbrFun(e) {
     e.preventDefault();
